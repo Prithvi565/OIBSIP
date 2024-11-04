@@ -22,10 +22,10 @@ def init_db():
     conn.close()
 
 
-def calculate_bmi(weight, height):
+def calculateBMI(weight, height):
     return weight / ((height/100) ** 2)
 
-def classify_bmi(bmi):
+def classifyBMI(bmi):
     if bmi < 18.5:
         return "Underweight"
     elif 18.5 <= bmi < 24.9:
@@ -35,38 +35,38 @@ def classify_bmi(bmi):
     else:
         return "Obese"
 
-def saveRecord(name, weight, height, bmi, category):
+def saveRecord(user_name, weight, height, bmi, category):
     conn = sqlite3.connect("bmi_data.db")
     cursor = conn.cursor()
     date = datetime.now().strftime("%Y-%m-%d")
     cursor.execute("""
-    INSERT INTO bmi_records (name, weight, height, bmi, category, date)
+    INSERT INTO bmi_records (user_name, weight, height, bmi, category, date)
     VALUES (?, ?, ?, ?, ?, ?)
-    """, (name, weight, height, bmi, category, date))
+    """, (user_name, weight, height, bmi, category, date))
     conn.commit()
     conn.close()
 
 def CopyAndSave():
     try:
-        name = entry_name.get()
+        user_name = entry_name.get()
         weight = float(entry_weight.get())
         height = float(entry_height.get())
-        bmi = calculate_bmi(weight, height)
-        category = classify_bmi(bmi)
+        bmi = calculateBMI(weight, height)
+        category = classifyBMI(bmi)
 
         label_result.config(text=f"BMI: {bmi:.2f}\nCategory: {category}")
-        saveRecord(name, weight, height, bmi, category)
+        saveRecord(user_name, weight, height, bmi, category)
         messagebox.showinfo("Success", "BMI record saved successfully!")
     except ValueError:
         messagebox.showerror("Error", "Please enter valid numeric values.")
 
 def show_history():
-    name = entry_name.get()
+    user_name = entry_name.get()
     conn = sqlite3.connect("bmi_data.db")
     cursor = conn.cursor()
     cursor.execute("""
-    SELECT date, bmi FROM bmi_records WHERE name = ? ORDER BY date
-    """, (name,))
+    SELECT date, bmi FROM bmi_records WHERE user_name = ? ORDER BY date
+    """, (user_name,))
     records = cursor.fetchall()
     conn.close()
 
@@ -77,7 +77,7 @@ def show_history():
         plt.plot(dates, bmis, marker='o')
         plt.xlabel("Date")
         plt.ylabel("BMI")
-        plt.title(f"BMI Trend for {name}")
+        plt.title(f"BMI Trend for {user_name}")
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
